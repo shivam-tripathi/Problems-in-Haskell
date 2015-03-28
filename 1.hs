@@ -17,7 +17,7 @@ baseCircle r = Circle ( Point 0 0 ) r
 
 ---------------------------------------------------------------------
 
--- Type Values : Value Constructors
+-- Data Type and Value Constructors
 
 data Person = Person String String Int Float String String deriving Show
 -- First Name, Last Name, Age, Height, Phone Number, favourite Ice-cream flavor.
@@ -80,13 +80,16 @@ tellCarDiff (NewCar {newcompany = a, newmodel = b, newyear = c}) = "This car is 
 
 ---------------------------------------------------------------------
 
--- Type Parameters : Type Constructors
+-- Type Parameters : Type Constructors and Value constructors           
 
 -- data Maybe a = Nothing | Just a deriving (Read, Show)
 
--- Maybe is type constructor, data type are passes to it and it returns a more complex data type.
--- Maybe, if it receives a Char data type, makes it's value either Nothing or of Char type.
--- Maybe takes value a and then uses Nothing( which takes no argument) or Just a (which does take a value)
+-- Maybe is type constructor, data type are passes to it and it returns a more
+-- 	complex data type.
+-- Maybe, if it receives a Char data type, makes it's value either Nothing or of
+--	Char type.
+-- Maybe takes value a and then uses Nothing( which takes no argument) or Just a
+--	(which does take a value)
 -- Therefore Maybe acts polymorphically. It is quite similar to [a] lists.
 
 
@@ -101,4 +104,20 @@ does = do
 		str <- getLine 
 		let d = read str :: Maybe Int
  		putStrLn (show d)
+
+---------------------------------------------------------------------
+
+-- Convention is to never add typeclasses constraints in data declarations as 
+--	one ends having more class constraints than needed.
+
+data Vector a = Vector a a a deriving Show
+
+vplus :: (Num t) => (Vector t) -> (Vector t) -> (Vector t)
+(Vector i j k) `vplus` (Vector l m n) = Vector (i+l) (j+m) (k+n)
+
+vectScalarMult :: (Num t) => (Vector t) -> t -> (Vector t)
+(Vector i j k) `vectScalarMult` x = Vector (i*x) (j*x) (k*x)
+
+scalarMult :: (Num t) => (Vector t) -> (Vector t) -> t
+(Vector i j k) `scalarMult` (Vector l m n) = (l*i) + (m*j) + (n*k)
 
