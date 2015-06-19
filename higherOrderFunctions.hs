@@ -86,3 +86,50 @@ chainsGreaterThanV2 x y = length ( filter (==True) (map (f y) [1 .. x]))
 chainsGreaterThanV3 :: (Integral a) => a -> Int -> Int
 chainsGreaterThanV3 x y = length (filter isLong (map chain [1..x]))
     where isLong xs = length xs > y
+
+-- For now, Integral used to set limit to ranges, can be applied to many arguments.
+-- Int is applied to one argument at a time.
+-- mod takes Integral.
+-- What are the differences between Num and Integral?
+-- length returns Int instead of Num. Num vs Int?
+-- What is Enum?
+-- fromIntegral converts Int to Num. (What's the use? Isn't Int just fine?)
+
+-- List of Curried functions
+
+-- Didn't understand the function's declaration????
+-- listOfCurriedFunc :: (Num a) => (a -> a -> a) -> Int -> [(a -> a -> a)]
+listOfCurriedFunc :: (Enum a, Num a) => (a -> b) -> a -> [b]
+listOfCurriedFunc f x = map f [0 .. x]
+
+-- Lambda functions
+-- Pattern matching in Lambda functions
+multiply :: (Num a) => [(a,a)] -> [a]
+multiply xs = map (\(a,b) -> a*b) xs
+
+addThree :: (Num a) => a -> a -> a -> a
+addThree = \x -> \y -> \z -> x + y + z
+
+-- \x means that a argument has been passed to it.
+multThree :: (Num a) => a -> a -> a -> a
+multThree = \x -> \y -> \z -> x*y*z
+
+-- In case of curried functions, they can take any argument.
+-- We cannot determine the type.
+-- Notations like t1, t2, t are taken to specify types.
+flip'' :: (t1 -> t2 -> t) -> t2 -> t1 -> t
+flip'' f = \ x y -> f y x
+
+-- foldl :: (a -> b -> a) -> a -> [b] -> a
+-- foldr :: (a -> b -> b) -> b -> [a] -> b
+-- Implementation of sum function using foldl
+sum' :: (Num a, Ord a) => [a] -> a
+sum' (x:xs) = foldl (+) x xs
+
+sum'' :: (Num a, Ord a) => [a] -> a
+sum'' = foldl (+) 0
+
+-- Implementation of the elem func using foldl
+elem' :: (Num a, Ord a) => a -> [a] -> Bool
+elem' a xs = foldl (\acc b -> if a==b then True else acc) False xs
+
