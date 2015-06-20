@@ -16,6 +16,10 @@ zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f y x = f x y
 
+reverse' :: [a] -> [a]
+reverse' [] = []
+reverse' (x:xs) = (reverse' xs) ++ [x]
+
 map' :: (a -> c) -> [a] -> [c]
 map' _ [] = []
 map' f (x:xs) = f x : map' f xs
@@ -61,8 +65,6 @@ chain x
     where evenChain = (x/2)
           oddChain = (3*x)+1
 --}
-
-
 
 chain :: (Integral a) => a -> [a]
 chain x
@@ -122,6 +124,12 @@ flip'' f = \ x y -> f y x
 
 -- foldl :: (a -> b -> a) -> a -> [b] -> a
 -- foldr :: (a -> b -> b) -> b -> [a] -> b
+
+-- Implementation of foldl
+foldl' :: (t1 -> t -> t1) -> t1 -> [t] -> t1
+foldl' f init [x] = f init x
+foldl' f init (x:xs) = (foldl' f) init' xs where init' = f init x
+
 -- Implementation of sum function using foldl
 sum' :: (Num a, Ord a) => [a] -> a
 sum' (x:xs) = foldl (+) x xs
@@ -133,3 +141,12 @@ sum'' = foldl (+) 0
 elem' :: (Num a, Ord a) => a -> [a] -> Bool
 elem' a xs = foldl (\acc b -> if a==b then True else acc) False xs
 
+-- Implementation of map by foldl
+mapl' :: (a -> b) -> [a] -> [b]
+mapl' f xs = reverse (foldl (\acc a -> (f a):acc) [] xs)
+
+-- Implementation of map using foldr
+mapr' :: (a -> b) -> [a] -> [b]
+mapr' f xs = foldr (\x acc -> (f x):acc ) [] xs
+
+-- What is the implentation of foldr?
