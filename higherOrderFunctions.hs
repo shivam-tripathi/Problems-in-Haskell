@@ -16,10 +16,6 @@ zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f y x = f x y
 
-reverse' :: [a] -> [a]
-reverse' [] = []
-reverse' (x:xs) = (reverse' xs) ++ [x]
-
 map' :: (a -> c) -> [a] -> [c]
 map' _ [] = []
 map' f (x:xs) = f x : map' f xs
@@ -149,4 +145,68 @@ mapl' f xs = reverse (foldl (\acc a -> (f a):acc) [] xs)
 mapr' :: (a -> b) -> [a] -> [b]
 mapr' f xs = foldr (\x acc -> (f x):acc ) [] xs
 
--- What is the implentation of foldr?
+-- Implementation of foldr
+foldr' :: (a -> b -> b) -> b -> [a] -> b
+foldr' f init [x] = f x init
+foldr' f init (x:xs) = f x (foldr' f init xs)
+
+-- foldr1 and foldl1
+maximum' :: (Ord a) => [a] -> a
+maximum' [] = error "No maximum of an empty list"
+maximum' xs = foldr1 (\a acc -> if a > acc then a else acc) xs
+
+reverse' :: [a] -> [a]
+reverse' [] = []
+reverse' (x:xs) = (reverse' xs) ++ [x]
+
+reverse'' :: [a] -> [a]
+reverse'' xs = foldl (\acc n -> n:acc) [] xs
+
+product' :: (Num a, Ord a) => [a] -> a
+product' [] = error "Product of empty list not possible"
+product' xs = foldr (\x acc -> x*acc) 1 xs
+
+product'' :: (Num a) => [a] -> a
+product'' [] = error "Product of empty list not possible"
+product'' xs = foldr1 (\x acc -> x*acc) xs
+
+filter'' :: (a -> Bool) -> [a] -> [a]
+filter'' f xs = foldr (\a acc -> if f a then a:acc else acc) [] xs
+
+head' :: [a] -> a
+head' xs = foldl1 (\n _ -> n) xs
+
+tail' :: [a] -> a
+tail' xs = foldr1 (\_ n -> n) xs
+
+-- Use of flip : (\acc x -> x:acc) is equal to flip(:)
+-- Implementation of scanl and scanr?
+
+-- How many elements does it take for the sum of the roots of all natural numbers to exceed 1000?
+check1 :: (Enum a, Floating a, Ord a) => a -> Int
+check1 x = length ( takeWhile (<x) (scanl1 (+) (map sqrt [1 ..]))) + 1
+
+-- Not to self : filter does not work on infinite list, to work on infinite lists we use takeWhile
+
+-- Use of $ function application
+check2 = map ($ 3) [(+4), (*5), (subtract 3), (/3), sqrt]
+check3 = map ($ 3) [(4+), (5*), (^2), (3/), sqrt]
+
+-- Function compositions
+check4 :: (Num a) => [[a]] -> [a]
+check4 yys = map (\xs -> negate( sum (tail xs))) yys
+
+check4' :: (Num a) => [[a]] -> [a]
+check4' yys = map ( negate . sum . tail ) yys
+
+-- Pointless style or pointfree style
+func x = ceiling (negate (tan (cos (max 50 x))))
+func' x = ceiling . negate . tan . cos . max 50 $ x
+func'' = ceiling . negate . tan . cos . max 50
+
+check5 = replicate 100 (product (map (*3) (zipWith max [1,2,3,4,5] [4,5,6,7,8])))
+check5' = replicate 100 . product . map (*3) . zipWith max [1,2,3,4,5] $ [4,5,6,7,8]
+
+-- The sum of all odd squares that are smaller than x
+oddSquares :: (Integral a) => a -> a
+oddSquares x = foldl1 (+) . takeWhile (<x) . filter odd  $ map (^2) [1 ..]
