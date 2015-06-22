@@ -4,7 +4,7 @@ import qualified Data.Map as M
 -- Only specific functions can be imported by mentioning in () after the module name.
 -- To avoid some functions, place "import <..> hiding ( .. )". This is to avoid name of same name import functions.
 -- Another way is to use qualified after the import term.
-
+-- @shivam-tripathi
 -- Data.List
 
 numberUnique :: (Eq a) =>  [a] -> Int
@@ -113,25 +113,143 @@ check2  = map (\l@(x:xs) -> (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,
 
 
 -- Implementation of inits
-inits :: [a] -> [[a]]
+inits' :: [a] -> [[a]]
+inits' xs = [[]] ++ map (helper xs) [0 .. (length xs - 1)]
+    where helper xs x = foldr (\a acc -> (xs!!a):acc) [] [0 .. x]
+
+inits'' :: [a] -> [[a]]
+inits'' [] = []
+inits'' xs = (inits $ init xs) ++ [xs]
+
+tails' :: [a] -> [[a]]
+tails' [] = []
+tails' xs = (map (\x -> (foldr (\a acc -> (xs!!a):acc) [] [x .. (l-1)])) [0 .. (l-1)]) ++ [[]]
+    where l = length xs
+
+tails'' ::  [a] -> [[a]]
+tails'' [] = [[]]
+tails'' xs = xs:(tails'' $ tail xs)
 
 
+-- search a subset in set
+-- A poor implementation.
+subsets :: [a] -> [[[a]]]
+subsets [] = []
+subsets (x:xs) = (initis (x:xs)) : subsets xs
+    where initis ys = map (\x -> (foldr (\a acc -> (ys !! a):acc ) [] [0 .. x])) [0 .. (length xs)]
+
+{--
+subsets' xs = length.removeSpaces.concat $  helper
+    where helper = map (\x -> (foldl (\acc a -> (take x a):acc )) [] (tails xs)) [0 .. (length xs) ]
+          removeSpaces xs = foldr (\a acc -> if a == ' ' then acc else a:acc ) [] xs
+--}
+
+isinfix ys xs = elem ys (concat $ subsets xs)
+
+-- A nice implementation of search.
+search :: (Eq a) => [a] -> [a] -> Bool
+search needle haystack =
+    let nlen = length needle
+    in  foldl (\acc x -> if take nlen x == needle then True else acc) False (tails haystack)
+
+-- Implementation of isPrefixOf and isSuffixOf
+isPrefixOf' :: (Eq a) => [a] -> [a] -> Bool
+isPrefixOf' ys xs = elem ys (inits xs)
+
+isSuffixOf' :: (Eq a) => [a] -> [a] -> Bool
+isSuffixOf' ys xs = elem ys (tails xs)
+
+-- Implementation of partition
+partition' :: (a -> Bool) -> [a] -> ([a],[a])
+-- partition' f [] = ([],[])
+partition' f xs = ((filter f xs), (filter (not.f $) xs))
+
+-- Implementation of find
+find' :: (a -> Bool) -> [a] -> Maybe a
+find' _ [] = Nothing
+find' f (x:xs)
+    | f x = Just x
+    | otherwise = find' f xs
+
+-- Implementation of elemIndex
+elemIndex' :: (Eq a) => a -> [a] -> Maybe Int
+elemIndex' _ [] = Nothing
+elemIndex' x xs = foldr (\a acc -> if (xs!!a) == x then (Just a) else acc ) Nothing [0 .. (length xs - 1)]
+
+-- Implementation of elemIndices
+elemIndices' :: (Eq a) => a -> [a] -> [Int]
+elemIndices' _ [] = []
+elemIndices' x xs = foldr (\a acc -> if (xs!!a) == x then (a:acc) else acc ) [] [0 .. (length xs - 1)]
+
+-- Implementation of findIndex
+findIndex' :: (a -> Bool) -> [a] -> Maybe Int
+findIndex' _ [] = Nothing
+findIndex' f xs = foldr (\a acc -> if f (xs!!a) then (Just a) else acc ) Nothing [0 .. (length xs - 1)]
+
+-- Implementation of findIndices
+findIndices' :: (a -> Bool) -> [a] -> [Int]
+findIndices' _ [] = []
+findIndices' f xs = foldr (\a acc -> if f (xs!!a) then (a:acc) else acc ) [] [0 .. (length xs - 1)]
+
+-- zip exist till 7 lists, here is an implementation for 3 lists.
+zip3' :: [a] -> [a] -> [a] -> [(a,a,a)]
+zip3' _ _ [] = []
+zip3' _ [] _ = []
+zip3' [] _ _ = []
+zip3' (x:xs) (y:ys) (z:zs) =  (x,y,z): (zip3' xs ys zs)
+
+-- zipWith also exist till 7. Similar implementation.
+
+-- Implementation of lines
+
+-- Implementation of words
+words' :: String -> [String]
+words' [] = []
+words' xs = clear $ if (index /= Nothing) then (take (f index) xs):(words' $ helper) else [xs]
+    where index = findIndex (== ' ') $ xs
+          l = length xs - 1
+          helper = foldr (\a acc -> (xs!!a):acc) [] [(f index + 1) .. l]
+          f (Just a) = a
+          clear ys = foldr (\a acc -> if a == "" then acc else a:acc) [] ys
 
 
+--Implementation of unlines
+unlines' xs = foldr (\x acc -> x++"\n"++acc) [] xs
+
+-- Implementation of unwords
+unwords' xs = foldr (\x acc -> x++" "++acc) [] xs
+
+-- Implementation of nub
 nub' :: (Eq a) => [a] -> [a]
 nub' xs = foldl (\acc x -> if (elem x acc) then acc else acc++[x]) [] xs
 
-delete' :: Char -> String -> String
+-- Implementation of delete
+delete' :: (Eq a) => a -> [a] -> [a]
 delete' x (y:ys)
     | x == y = ys
     | otherwise = y:delete' x ys
 
+-- What does (**) operator do?
 
-{--
-op :: (Eq a) => [a] -> [a] -> [a]
-op [] _ = []
-op ys [] = ys
-op (y:ys) xs
-    | elem y xs = op ys xs
-    | otherwise = y: (op ys xs)
---}
+-- Implementation of (\\)
+op xs [] = xs
+op xs (y:ys) =  (op) (delete' y xs) ys
+-- How to declare infix functions ?
+
+-- Implementation of union
+union' :: (Eq a) => [a] -> [a] -> [a]
+union' xs ys = foldl (\acc a -> if elem a xs then acc else acc++[a] ) xs ys
+
+-- Implementation of intersect
+intersect' :: (Eq a) => [a] -> [a] -> [a]
+intersect' xs ys = foldr (\a acc -> if elem a xs then a:acc else acc) [] ys
+
+-- Implementation of insert
+insert' :: (Ord a) => a -> [a] -> [a]
+insert' n [] = [n]
+insert' n (x:xs)
+    | n <= x = n:x:xs
+    | otherwise = x : (insert' n xs)
+
+-- length, take, drop, splitAt, !! and replicate :: Int as one of the parameters
+-- To solve the problem of Fractional Integer error, generic functions have been provided in Data.List.
