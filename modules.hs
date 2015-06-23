@@ -1,4 +1,6 @@
 import Data.List
+import Data.Char
+import Data.Function
 import qualified Data.Map as M
 
 -- Only specific functions can be imported by mentioning in () after the module name.
@@ -11,7 +13,7 @@ numberUnique :: (Eq a) =>  [a] -> Int
 numberUnique = length . nub
 
 splitIntoAlphabets :: [Char] -> [String]
-splitIntoAlphabets = words.intersperse ' '
+splitIntoAlphabets = words.intersperse' ' '
 
 -- Implementation of intersperse
 intersperse' :: a -> [a] -> [a]
@@ -212,6 +214,11 @@ words' xs = clear $ if (index /= Nothing) then (take (f index) xs):(words' $ hel
           f (Just a) = a
           clear ys = foldr (\a acc -> if a == "" then acc else a:acc) [] ys
 
+words'' xs = filter (not.any isSpace).(groupBy' (on (==) isSpace)) $ xs
+
+words''' xs = filter (not.(==) " ") (groupBy' (on (==) isSpace) xs)
+
+words'''' xs = foldr (\a acc -> if a == " " then acc else a:acc) [] (groupBy' (on (==) isSpace) xs)
 
 --Implementation of unlines
 unlines' xs = foldr (\x acc -> x++"\n"++acc) [] xs
@@ -222,6 +229,10 @@ unwords' xs = foldr (\x acc -> x++" "++acc) [] xs
 -- Implementation of nub
 nub' :: (Eq a) => [a] -> [a]
 nub' xs = foldl (\acc x -> if (elem x acc) then acc else acc++[x]) [] xs
+
+nub'' :: (Eq a) => [a] -> [a]
+nub'' [] = []
+nub'' (x:xs) = if elem x xs then nub'' xs else x:(nub'' xs)
 
 -- Implementation of delete
 delete' :: (Eq a) => a -> [a] -> [a]
@@ -253,3 +264,85 @@ insert' n (x:xs)
 
 -- length, take, drop, splitAt, !! and replicate :: Int as one of the parameters
 -- To solve the problem of Fractional Integer error, generic functions have been provided in Data.List.
+-- For example to divide a number by length of a list, one can't use length.
+-- Use genericLength, genericTake, genericDrop, genericSplitAt, genericIndex and genericReplicate.
+
+-- The nub, delete, union, intersect and group functions all have their more general counterparts called
+--  nubBy, deleteBy, unionBy, intersectBy and groupBy i.e. nub, delete, union, intersect and group have
+--  only conditions of (==), while others can be given a boolean returning function.
+
+-- Implementation of nubBy
+-- Implementation of deleteBy
+-- Implementation of intersectBy
+-- Implementation of unionBy
+-- Implementation of groupBy
+
+
+groupBy' :: (a -> a -> Bool) -> [a] -> [[a]]
+groupBy' _ [] = []
+groupBy' f (x:xs) = let (insert, pass) = (span (f x) xs) in ([(x:insert)]++(groupBy f pass))
+
+-- Use of 'Data.Function.on' function
+
+-------------------------------------------------------------------------------
+
+-- Data.Char
+-- What is control character?
+
+-- isControl'
+
+isSpace' ch = ch == ' '
+
+isLower' ch = elem ch ['a' .. 'z']
+
+isUpper' ch = elem ch ['A' .. 'Z']
+
+isAlpha' ch = or [ isLower' ch, isUpper' ch]
+
+isDigit' ch = elem ch ['0' ..'9']
+
+isAlphaNum' ch = or [ isAlpha' ch, isDigit' ch]
+
+isPrint' ch = not.isControl $ ch
+
+-- isOctDigit'
+
+-- isHexDigit'
+
+-- What is the difference between isLetter and isAlpha
+
+-- isMark'
+
+-- What is the difference between isDigit and isNumber
+
+-- isPunctuation'
+-- # is is Punctuation character?
+
+-- isSymbol'
+
+-- isAscii', isAsciiUpper', isAsciiLower
+
+-- isLatin1
+
+check3 xs = groupBy' ((==) `on` isSpace) xs
+
+-- Implementation of generalCategory
+generalCategory' ch
+    | isControl ch =
+    | isSpace ch =
+    | isLower ch =
+    | isUpper ch =
+    | isAlpha ch =
+    | isDigit ch =
+    | isAlphaNum ch =
+    | isPrint ch =
+    |isOctDigit ch =
+    |isHexDigit ch =
+    |isMark ch =
+    |isPunctuation ch =
+    |isSymbol ch =
+    |isAscii ch =
+    |isAsciiUpper ch =
+    |isAsciiLower ch =
+    |isLatin1 ch =
+
