@@ -287,7 +287,6 @@ groupBy' f (x:xs) = let (insert, pass) = (span (f x) xs) in ([(x:insert)]++(grou
 -------------------------------------------------------------------------------
 
 -- Data.Char
--- What is control character?
 
 -- isControl'
 
@@ -326,23 +325,112 @@ isPrint' ch = not.isControl $ ch
 
 check3 xs = groupBy' ((==) `on` isSpace) xs
 
--- Implementation of generalCategory
+-- Implementation of generalCategory using simple comparison, not the enumeration
 generalCategory' ch
-    | isControl ch =
-    | isSpace ch =
-    | isLower ch =
-    | isUpper ch =
-    | isAlpha ch =
-    | isDigit ch =
-    | isAlphaNum ch =
-    | isPrint ch =
-    |isOctDigit ch =
-    |isHexDigit ch =
-    |isMark ch =
-    |isPunctuation ch =
-    |isSymbol ch =
-    |isAscii ch =
-    |isAsciiUpper ch =
-    |isAsciiLower ch =
-    |isLatin1 ch =
+    | isControl ch = "Control character"
+    | isSpace ch = "Space"
+    | isLower ch = "Lower case alphabet"
+    | isUpper ch = "Upper case alphabet"
+    | isAlpha ch = "Alphabet"
+    | isDigit ch = "Digit"
+    | isAlphaNum ch = "Alphabet or Digit"
+    | isOctDigit ch = "Octadecimal"
+    | isHexDigit ch = "Hexadecimal"
+    | isPunctuation ch = "Punctuation mark"
+    | isSymbol ch = "Mathematical symbol"
+    | isAscii ch = "Ascii symbol - first 128 characters of Unicode"
+    | isAsciiUpper ch = "Ascii upper case alphabet"
+    | isAsciiLower ch = "Ascii Lower case alphabet"
+    | isLatin1 ch = "Falls in first 256 characters of Unicode"
+    | isMark ch = "Unicode mark"
+    | isPrint ch = "Printable character"
 
+
+-- ord, chr, toEnum, fromEnum
+
+-- Implementation of toUpper, toLower
+toUpper' ch
+    | isLower' ch = chr $ ord ch - 32
+    | otherwise = error "Not a lower case letter"
+
+toLower' ch
+    | isUpper' ch = chr $ ord ch + 32
+    | otherwise = error "Not a upper case letter"
+
+-- Difference between uppercase and titlecase?
+
+-- Implementation of digitToInt
+digitToInt' :: Char -> Int
+digitToInt' ch
+    | isDigit ch = ord ch - 48
+    | ch >= 'a' && ch <= 'f' = ord ch - ord 'a' + 10
+    | ch >= 'A' && ch <= 'F' = ord ch - ord 'A' + 10
+    | otherwise = error "not a digit"
+
+intToDigit' :: Int -> Char
+intToDigit' i
+    | i >= 0 && i <= 9 = chr ( i + 48)
+    | i > 9 && i <= 15 = chr ( ord 'a' + i - 10)
+    | otherwise = error "not a digit"
+
+caesarCipherEncode :: Int -> [Char] -> [Char]
+caesarCipherEncode shift mssg = map (chr .(+) shift . ord) mssg
+
+caesarCipherDecode :: Int -> [Char] -> [Char]
+caesarCipherDecode shift mssg = map (chr.(+) (negate shift). ord) mssg
+
+--------------------------------------------------------------------------------
+-- Data.Map
+-- Association list (also called dictionaries) are lists, using key-value pairs.
+
+phoneBook =
+    [("betty","555-2938")
+    ,("bonnie","452-2928")
+    ,("patsy","493-2928")
+    ,("lucille","205-2928")
+    ,("wendy","939-8282")
+    ,("penny","853-2492")
+    ]
+
+findKey :: String -> [(String, String)] -> Maybe String
+findKey _ [] = Nothing
+findKey key ((a,b):xs)
+    | key == a = Just b
+    | otherwise = findKey key xs
+
+findKey' :: String -> [(String, String)] -> Maybe String
+findKey' key = foldl (\acc (k,v) -> if k == key then Just v else acc) Nothing
+
+-- Data.Maps offer faster Association lists which have been internally
+-- implemented as trees.
+
+-- fromList takes association list in form of a list and returns a map.
+-- M.fromList discards duplicate keys. The last one will be considered.
+
+newMap = M.fromList [("betty","555-2938"), ("bonnie","452-2928"),
+    ("patsy","493-2928"), ("lucille","205-2928"), ("wendy","939-8282"),
+    ("penny","853-2492")]
+
+-- :t M.fromList
+-- M.fromList :: Ord k => [(k, a)] -> M.Map k a
+-- Maps must have keys belonging to Ord class.
+-- M.empty gives empty map => fromList []
+test = M.empty
+
+-- M.insert inserts a key-value pair in the map.
+insertElem k v = M.insert k v test
+
+fromList xs = foldl (\acc (k,v) -> M.insert k v acc) M.empty xs
+
+-- M.null checks if the map is empty.
+ans = M.null test
+
+-- M.size returns the size.
+newMapLen = M.size newMap
+
+-- M.singleton takes a key-value and returns map initialised with this pair.
+
+-- M.lookup takes a key and a map, checks if the key exists, and return Just
+-- value.
+
+-- toList is reverse of fromList.
